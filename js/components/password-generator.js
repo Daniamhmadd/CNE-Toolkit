@@ -72,11 +72,14 @@ window.PasswordGeneratorComponent = {
               <span class="badge" id="strengthBadge">-</span>
             </div>
 
-        <input type="text" id="passwordOutput" placeholder="Type here..." style="background: #ffffff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; width: 100%; color: #000;">
-              <button class="copy-btn" id="btnCopyPass" title="${t('btnCopyTooltip')}" disabled>
-                <i data-lucide="copy" id="copyIcon"></i>
-              </button>
-            </div>
+<div class="password-output-box">
+    <input type="text" id="passwordOutput" class="password-input" 
+           style="background: #ffffff; border: 1px solid #ccc; padding: 10px; width: 100%; border-radius: 5px;">
+    
+    <button class="copy-btn" id="btnCopyPass" title="Copy">
+        <i data-lucide="copy" id="copyIcon"></i>
+    </button>
+</div>
 
             <div class="results-grid">
               <div class="result-row-vertical" style="padding: 1rem;">
@@ -160,7 +163,7 @@ window.PasswordGeneratorComponent = {
       const options = getOptions();
       
       const password = CneUtils.generatePassword(length, options);
-      passwordOutput.innerText = password;
+      passwordOutput.value = password;
       passwordOutput.style.color = 'var(--text-dark)';
       btnCopyPass.disabled = false;
       
