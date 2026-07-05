@@ -216,14 +216,14 @@ window.PasswordGeneratorComponent = {
     triggerGeneration();
   }
 };
-// ... هنا الكود القديم الخاص بك ...
-// (لا تحذفي شيئاً مما سبق)
+// استبدلي الكود السابق بهذا الكود في نهاية الملف:
+const passwordOutput = document.getElementById('passwordOutput');
 
-// أضيفي هذا في آخر الملف:
-const myInput = document.getElementById('passwordOutput');
-if (myInput) {
-    myInput.addEventListener('input', (e) => {
+if (passwordOutput) {
+    passwordOutput.addEventListener('input', (e) => {
         const val = e.target.value;
+
+        // 1. تحديث المربعات (Checkboxes)
         const chkUpper = document.getElementById('chkUpper');
         const chkLower = document.getElementById('chkLower');
         const chkNumbers = document.getElementById('chkNumbers');
@@ -233,5 +233,16 @@ if (myInput) {
         if (chkLower) chkLower.checked = /[a-z]/.test(val);
         if (chkNumbers) chkNumbers.checked = /[0-9]/.test(val);
         if (chkSymbols) chkSymbols.checked = /[^A-Za-z0-9]/.test(val);
+
+        // 2. تفعيل إعادة التحليل (هذا هو السر!)
+        // نقوم باستدعاء الدالة المسؤولة عن إعادة حساب قوة الباسورد
+        if (typeof validateOptions === 'function') {
+            validateOptions();
+        }
+        if (typeof triggerGeneration === 'function') {
+            // ملاحظة: لا نستدعي توليد الباسورد هنا لتجنب التكرار اللانهائي
+            // فقط نحدث حالة الـ UI
+            validateOptions();
+        }
     });
 }
