@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CNE Toolkit – A responsive collection of networking tools for students, IT professionals, and beginners in Network Engineering.">
-    <title>CNE Toolkit – Network Engineering Assistant</title>
+    <meta name="description" content="CNE Toolkit – Networking Tools">
 
-    <!-- Google Fonts -->
+    <title>CNE Toolkit</title>
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Inter:wght@300;600&display=swap" rel="stylesheet">
 
     <!-- CSS -->
     <link rel="stylesheet" href="./css/style.css">
 
-    <!-- ❌ تم حذف CDN الخارجي لتجنب Tracking Prevention -->
-    <!-- <script src="https://unpkg.com/lucide@latest"></script> -->
+    <!-- ✅ ONLY ONE VERSION لكل مكتبة -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- ✅ ملفات محلية (لا تتأثر بالمتصفح) -->
-    <script src="./js/libs/lucide.min.js"></script>
-    <script src="./js/libs/qrcode.min.js"></script>
 
 </head>
 
@@ -27,46 +25,46 @@
 
     <div class="app-container">
 
-        <!-- Mobile Header -->
+        <!-- HEADER -->
         <header class="mobile-header">
             <div class="brand">
-                <i data-lucide="network" class="brand-icon"></i>
+                <i data-lucide="network"></i>
                 <span>CNE Toolkit</span>
             </div>
 
-            <div style="display:flex; gap:10px;">
+            <div>
                 <button id="mobileThemeToggle">🌙</button>
                 <button id="mobileLangToggle">AR</button>
                 <button id="menuToggleBtn">☰</button>
             </div>
         </header>
 
-        <!-- Sidebar -->
+        <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
+
             <nav class="sidebar-nav">
-
-                <a href="#/" data-page="home" class="nav-link active">Dashboard</a>
-                <a href="#/ip-analyzer" data-page="ip-analyzer" class="nav-link">IP Analyzer</a>
-                <a href="#/subnet-calculator" data-page="subnet-calculator" class="nav-link">Subnet</a>
-                <a href="#/port-lookup" data-page="port-lookup" class="nav-link">Ports</a>
-                <a href="#/password-generator" data-page="password-generator" class="nav-link">Password</a>
-                <a href="#/binary-converter" data-page="binary-converter" class="nav-link">Binary</a>
-                <a href="#/qr-generator" data-page="qr-generator" class="nav-link">QR Generator</a>
-
+                <a href="#/" class="nav-link active" data-page="home">Dashboard</a>
+                <a href="#/ip-analyzer" data-page="ip-analyzer">IP Analyzer</a>
+                <a href="#/subnet-calculator" data-page="subnet-calculator">Subnet</a>
+                <a href="#/port-lookup" data-page="port-lookup">Ports</a>
+                <a href="#/password-generator" data-page="password-generator">Password</a>
+                <a href="#/binary-converter" data-page="binary-converter">Binary</a>
+                <a href="#/qr-generator" data-page="qr-generator">QR Generator</a>
             </nav>
+
         </aside>
 
-        <!-- Overlay -->
+        <!-- OVERLAY -->
         <div id="sidebarOverlay"></div>
 
-        <!-- Content -->
+        <!-- CONTENT -->
         <main class="main-content">
             <div id="page-content"></div>
         </main>
 
     </div>
 
-    <!-- Scripts -->
+    <!-- JS FILES -->
     <script src="./js/translations.js"></script>
     <script src="./js/utils.js"></script>
 
@@ -80,6 +78,15 @@
     <script src="./js/components/about.js"></script>
 
     <script src="./js/app.js"></script>
+
+    <script>
+        // safety init for lucide
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    </script>
 
 </body>
 </html>
