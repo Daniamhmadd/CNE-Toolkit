@@ -8,6 +8,7 @@ window.PasswordGeneratorComponent = {
     render() {
         return `
       <div class="tool-view">
+
         <div class="tool-header">
           <div class="tool-header-icon">
             <i data-lucide="key-round"></i>
@@ -20,46 +21,44 @@ window.PasswordGeneratorComponent = {
 
         <div class="tool-workspace">
 
-          <!-- Configurations Card -->
+          <!-- SETTINGS -->
           <div class="card">
-            <h3 class="card-title" style="margin-bottom: 1.5rem;">${t('passConfigTitle')}</h3>
 
-            <div class="form-group">
-              <label class="form-label">${t('passLengthLabel')}</label>
-              <input type="range" id="passLength" min="6" max="64" value="16">
-              <span id="lengthVal">16</span>
-            </div>
+            <h3>${t('passConfigTitle')}</h3>
 
-            <div class="form-group">
-              <label class="form-label">${t('passIncludeLabel')}</label>
+            <label>${t('passLengthLabel')}</label>
+            <input type="range" id="passLength" min="6" max="64" value="16">
+            <span id="lengthVal">16</span>
 
-              <label><input type="checkbox" id="chkUpper" checked> ${t('passUppercase')}</label>
-              <label><input type="checkbox" id="chkLower" checked> ${t('passLowercase')}</label>
-              <label><input type="checkbox" id="chkNumbers" checked> ${t('passNumbers')}</label>
-              <label><input type="checkbox" id="chkSymbols" checked> ${t('passSymbols')}</label>
-            </div>
+            <br><br>
 
-            <div id="passValidation" style="display:none; color:red;">
+            <label><input type="checkbox" id="chkUpper" checked> ${t('passUppercase')}</label><br>
+            <label><input type="checkbox" id="chkLower" checked> ${t('passLowercase')}</label><br>
+            <label><input type="checkbox" id="chkNumbers" checked> ${t('passNumbers')}</label><br>
+            <label><input type="checkbox" id="chkSymbols" checked> ${t('passSymbols')}</label><br>
+
+            <div id="passValidation" style="display:none;color:red;margin-top:10px;">
               ${t('passValErr')}
             </div>
 
-            <button id="btnGeneratePass" class="btn btn-primary">
+            <button id="btnGeneratePass">
               ${t('btnGeneratePass')}
             </button>
 
           </div>
 
-          <!-- Output -->
-          <div class="card results-card">
+          <!-- OUTPUT -->
+          <div class="card">
 
-            <input type="text" id="passwordOutput" readonly />
+            <input type="text" id="passwordOutput" placeholder="Password">
 
             <button id="btnCopyPass">Copy</button>
 
             <div class="badge" id="strengthBadge">-</div>
             <div id="strengthLabel">-</div>
-            <div class="strength-bar">
-              <div id="strengthIndicator"></div>
+
+            <div style="height:10px;background:#ddd;margin-top:10px;">
+              <div id="strengthIndicator" style="height:10px;width:0%;background:red;"></div>
             </div>
 
             <p id="entropyPara">-</p>
@@ -92,7 +91,8 @@ window.PasswordGeneratorComponent = {
         const strengthIndicator = document.getElementById('strengthIndicator');
         const entropyPara = document.getElementById('entropyPara');
 
-        passLength.addEventListener('input', e => {
+        // slider
+        passLength.addEventListener('input', (e) => {
             lengthVal.innerText = e.target.value;
         });
 
@@ -103,30 +103,39 @@ window.PasswordGeneratorComponent = {
             symbols: chkSymbols.checked
         });
 
-        // ✅ FIX: صار global داخل component
+        // ✅ VALIDATION (fixed scope)
         this.validateOptions = () => {
-            const opts = getOptions();
-            const valid = opts.uppercase || opts.lowercase || opts.numbers || opts.symbols;
+            const o = getOptions();
+            const valid = o.uppercase || o.lowercase || o.numbers || o.symbols;
 
-            if (!valid) {
-                passValidation.style.display = 'block';
-                btnGeneratePass.disabled = true;
-            } else {
-                passValidation.style.display = 'none';
-                btnGeneratePass.disabled = false;
-            }
+            passValidation.style.display = valid ? 'none' : 'block';
+            btnGeneratePass.disabled = !valid;
 
             return valid;
         };
 
-        [chkUpper, chkLower, chkNumbers, chkSymbols].forEach(el => {
-            el.addEventListener('change', () => this.validateOptions());
-        });
+        const updateStrengthUI = (strength) => {
+
+            strengthBadge.innerText = t(strength.label);
+            strengthLabel.innerText = t(strength.label);
+
+            entropyPara.innerText = `Entropy: ${strength.entropy}`;
+
+            let color = 'red';
+            if (strength.label === 'passMedium') color = 'orange';
+            if (strength.label === 'passStrong') color = 'green';
+
+            strengthIndicator.style.width =
+                `${Math.min(100, (strength.entropy / 128) * 100)}%`;
+
+            strengthIndicator.style.background = color;
+        };
 
         const triggerGeneration = () => {
+
             if (!this.validateOptions()) return;
 
-            const length = parseInt(passLength.value);
+            const length = parseInt(passLength.value, 10);
             const options = getOptions();
 
             const password = CneUtils.generatePassword(length, options);
@@ -134,24 +143,39 @@ window.PasswordGeneratorComponent = {
 
             const strength = CneUtils.calculatePasswordStrength(password, options);
 
-            strengthBadge.innerText = t(strength.label);
-            strengthLabel.innerText = t(strength.label);
-
-            entropyPara.innerText = `${t('passEntropyInfo')}: ${strength.entropy}`;
-
-            let color = 'red';
-            if (strength.label === 'passMedium') color = 'orange';
-            if (strength.label === 'passStrong') color = 'green';
-
-            strengthIndicator.style.width = `${Math.min(100, strength.entropy)}%`;
-            strengthIndicator.style.background = color;
+            updateStrengthUI(strength);
         };
 
+        // events
         btnGeneratePass.addEventListener('click', triggerGeneration);
 
-        btnCopyPass.addEventListener('click', () => {
-            const text = passwordOutput.value; // ✅ FIX
+        [chkUpper, chkLower, chkNumbers, chkSymbols].forEach(el => {
+            el.addEventListener('change', () => this.validateOptions());
+        });
 
+        // 🔥 LIVE typing feature (رجعناه صح)
+        passwordOutput.addEventListener('input', () => {
+
+            const val = passwordOutput.value;
+
+            const boxes = {
+                chkUpper: /[A-Z]/,
+                chkLower: /[a-z]/,
+                chkNumbers: /[0-9]/,
+                chkSymbols: /[^A-Za-z0-9]/
+            };
+
+            for (let id in boxes) {
+                const el = document.getElementById(id);
+                if (el) el.checked = boxes[id].test(val);
+            }
+
+            const strength = CneUtils.calculatePasswordStrength(val, getOptions());
+            updateStrengthUI(strength);
+        });
+
+        btnCopyPass.addEventListener('click', () => {
+            const text = passwordOutput.value;
             if (!text) return;
 
             navigator.clipboard.writeText(text);
@@ -160,6 +184,7 @@ window.PasswordGeneratorComponent = {
             setTimeout(() => btnCopyPass.innerText = "Copy", 1500);
         });
 
+        // init
         triggerGeneration();
     }
 };
