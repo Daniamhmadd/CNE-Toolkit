@@ -60,3 +60,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. تهيئة أولية (حتى لا تظهر الصفحة فارغة عند التحميل)
     triggerGeneration();
 });
+window.addEventListener('load', () => {
+    const passwordOutput = document.getElementById('passwordOutput');
+
+    // درع حماية: لا تشغل الكود إلا إذا كان المربع موجوداً فعلياً
+    if (passwordOutput) {
+        passwordOutput.addEventListener('input', () => {
+            // نتحقق أن الدالة الأصلية موجودة قبل استدعائها
+            if (typeof validateOptions === 'function') {
+                validateOptions();
+            }
+        });
+    }
+});
