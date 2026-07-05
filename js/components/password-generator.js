@@ -216,21 +216,29 @@ window.PasswordGeneratorComponent = {
     triggerGeneration();
   }
 };
-// هذا الكود يربط حقل النص بالمنطق الأصلي للموقع
-const passwordOutput = document.getElementById('passwordOutput');
+// نستخدم EventListener للتأكد أن الصفحة جاهزة
+window.addEventListener('load', () => {
+    const passwordOutput = document.getElementById('passwordOutput');
+    if (passwordOutput) {
+        passwordOutput.addEventListener('input', (e) => {
+            // هذه دالة بسيطة تحدث المربعات بناءً على ما تكتبينه
+            const val = e.target.value;
+            const checks = {
+                'chkUpper': /[A-Z]/,
+                'chkLower': /[a-z]/,
+                'chkNumbers': /[0-9]/,
+                'chkSymbols': /[^A-Za-z0-9]/
+            };
 
-if (passwordOutput) {
-    passwordOutput.addEventListener('input', (e) => {
-        // عندما تكتبين، نحدث المربعات أولاً
-        const val = e.target.value;
-        if (document.getElementById('chkUpper')) document.getElementById('chkUpper').checked = /[A-Z]/.test(val);
-        if (document.getElementById('chkLower')) document.getElementById('chkLower').checked = /[a-z]/.test(val);
-        if (document.getElementById('chkNumbers')) document.getElementById('chkNumbers').checked = /[0-9]/.test(val);
-        if (document.getElementById('chkSymbols')) document.getElementById('chkSymbols').checked = /[^A-Za-z0-9]/.test(val);
+            Object.keys(checks).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = checks[id].test(val);
+            });
 
-        // هنا "السر": نستدعي الدالة الأصلية للموقع لتحديث كل شيء
-        if (typeof validateOptions === 'function') {
-            validateOptions();
-        }
-    });
-}
+            // استدعاء الدالة الأصلية في الكود الخاص بك إذا كانت موجودة
+            if (typeof validateOptions === 'function') {
+                validateOptions();
+            }
+        });
+    }
+});
