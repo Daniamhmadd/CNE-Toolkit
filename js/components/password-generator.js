@@ -156,7 +156,8 @@ window.PasswordGeneratorComponent = {
       chk.addEventListener('change', validateOptions);
     });
 
-    const triggerGeneration = () => {
+      const triggerGeneration = () => {
+      passwordOutput.addEventListener('input', validateOptions);
       if (!validateOptions()) return;
 
       const length = parseInt(passLength.value, 10);
@@ -216,29 +217,3 @@ window.PasswordGeneratorComponent = {
     triggerGeneration();
   }
 };
-// نستخدم EventListener للتأكد أن الصفحة جاهزة
-window.addEventListener('load', () => {
-    const passwordOutput = document.getElementById('passwordOutput');
-    if (passwordOutput) {
-        passwordOutput.addEventListener('input', (e) => {
-            // هذه دالة بسيطة تحدث المربعات بناءً على ما تكتبينه
-            const val = e.target.value;
-            const checks = {
-                'chkUpper': /[A-Z]/,
-                'chkLower': /[a-z]/,
-                'chkNumbers': /[0-9]/,
-                'chkSymbols': /[^A-Za-z0-9]/
-            };
-
-            Object.keys(checks).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.checked = checks[id].test(val);
-            });
-
-            // استدعاء الدالة الأصلية في الكود الخاص بك إذا كانت موجودة
-            if (typeof validateOptions === 'function') {
-                validateOptions();
-            }
-        });
-    }
-});
