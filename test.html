@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNE Toolkit - Unit Test Suite</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      padding: 2rem;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+    }
+    h1 {
+      margin-top: 0;
+      color: #2563eb;
+      border-bottom: 2px solid #eff6ff;
+      padding-bottom: 0.75rem;
+    }
+    .summary {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      background: #eff6ff;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .pass-count { color: #10b981; }
+    .fail-count { color: #ef4444; }
+    .test-case {
+      padding: 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .test-case:last-child {
+      border-bottom: none;
+    }
+    .test-name {
+      font-weight: 500;
+    }
+    .status {
+      font-weight: 700;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .status.passed {
+      background-color: #ecfdf5;
+      color: #10b981;
+    }
+    .status.failed {
+      background-color: #fef2f2;
+      color: #ef4444;
+    }
+    .details {
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>CNE Toolkit - Algorithmic Test Suite</h1>
+  
+  <div class="summary">
+    <div>Total Tests: <span id="totalTests">0</span></div>
+    <div>Passed: <span id="passedTests" class="pass-count">0</span></div>
+    <div>Failed: <span id="failedTests" class="fail-count">0</span></div>
+  </div>
+
+  <div id="testResults">
+    <!-- Results list will populate here -->
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script>
+  // Simple assertion harness
+  const suite = {
+    total: 0,
+    passed: 0,
+    failed: 0,
+    resultsEl: null,
+
+    init() {
+      this.resultsEl = document.getElementById('testResults');
+      this.run();
+    },
+
+    assert(name, condition, details = '') {
+      this.total++;
+      const item = document.createElement('div');
+      item.className = 'test-case';
+      
+      let statusHtml = '';
+      if (condition) {
+        this.passed++;
+        statusHtml = '<span class="status passed">PASSED</span>';
+      } else {
+        this.failed++;
+        statusHtml = '<span class="status failed">FAILED</span>';
+      }
+      
+      item.innerHTML = `
+        <div>
+          <div class="test-name">${name}</div>
+          ${details ? `<div class="details">${details}</div>` : ''}
+        </div>
+        ${statusHtml}
+      `;
+      
+      this.resultsEl.appendChild(item);
+      
+      // Update counters
+      document.getElementById('totalTests').innerText = this.total;
+      document.getElementById('passedTests').innerText = this.passed;
+      document.getElementById('failedTests').innerText = this.failed;
+    },
+
+    run() {
+      // --- Test 1: IP Validation ---
+      this.assert(
+        'Validate IPv4: Standard Private Class C',
+        CneUtils.validateIp('192.168.1.1') === true
+      );
+      this.assert(
+        'Validate IPv4: Standard Public Class A',
+        CneUtils.validateIp('8.8.8.8') === true
+      );
+      this.assert(
+        'Validate IPv4: Out of bounds octet (256)',
+        CneUtils.validateIp('192.168.256.1') === false,
+        'Expected false for 256'
+      );
+      this.assert(
+        'Validate IPv4: Negative octet',
+        CneUtils.validateIp('192.168.-1.1') === false,
+        'Expected false for negative octet'
+      );
+      this.assert(
+        'Validate IPv4: Invalid characters',
+        CneUtils.validateIp('192.168.abc.1') === false,
+        'Expected false for letters'
+      );
+      this.assert(
+        'Validate IPv4: Missing octets',
+        CneUtils.validateIp('10.10.10') === false,
+        'Expected false for 3 octets'
+      );
+
+      // --- Test 2: IP Classes ---
+      this.assert(
+        'Resolve Class: Class A (10.0.0.1)',
+        CneUtils.getIpClass('10.0.0.1') === 'A'
+      );
+      this.assert(
+        'Resolve Class: Loopback (127.0.0.1)',
+        CneUtils.getIpClass('127.0.0.1') === 'A (Loopback)'
+      );
+      this.assert(
+        'Resolve Class: Class B (172.16.5.5)',
+        CneUtils.getIpClass('172.16.5.5') === 'B'
+      );
+      this.assert(
+        'Resolve Class: Class C (192.168.10.10)',
+        CneUtils.getIpClass('192.168.10.10') === 'C'
+      );
+      this.assert(
+        'Resolve Class: Class D Multicast (224.0.0.1)',
+        CneUtils.getIpClass('224.0.0.1') === 'D (Multicast)'
+      );
+      this.assert(
+        'Resolve Class: Class E Reserved (245.0.0.1)',
+        CneUtils.getIpClass('245.0.0.1') === 'E (Experimental)'
+      );
+
+      // --- Test 3: Public / Private IP Routing Scope ---
+      this.assert(
+        'Routing Scope: Class A Private',
+        CneUtils.getIpPrivacy('10.50.60.70') === 'Private'
+      );
+      this.assert(
+        'Routing Scope: Class B Private',
+        CneUtils.getIpPrivacy('172.20.10.1') === 'Private'
+      );
+      this.assert(
+        'Routing Scope: Class B Out-of-bounds Private',
+        CneUtils.getIpPrivacy('172.32.10.1') === 'Public',
+        '172.32.10.1 should be Public'
+      );
+      this.assert(
+        'Routing Scope: Class C Private',
+        CneUtils.getIpPrivacy('192.168.25.25') === 'Private'
+      );
+      this.assert(
+        'Routing Scope: Link-Local APIPA',
+        CneUtils.getIpPrivacy('169.254.12.12') === 'Private (Link-Local)'
+      );
+      this.assert(
+        'Routing Scope: Public Web Host',
+        CneUtils.getIpPrivacy('142.250.190.46') === 'Public',
+        'Google IP is Public'
+      );
+
+      // --- Test 4: Subnet calculations ---
+      const subnet24 = CneUtils.calculateSubnet('192.168.1.10', 24);
+      this.assert(
+        'Subnet Math /24: Network Address',
+        subnet24.networkAddress === '192.168.1.0',
+        `Expected 192.168.1.0, got ${subnet24.networkAddress}`
+      );
+      this.assert(
+        'Subnet Math /24: Broadcast Address',
+        subnet24.broadcastAddress === '192.168.1.255',
+        `Expected 192.168.1.255, got ${subnet24.broadcastAddress}`
+      );
+      this.assert(
+        'Subnet Math /24: Total Hosts',
+        subnet24.totalHosts === '256',
+        `Expected 256, got ${subnet24.totalHosts}`
+      );
+      this.assert(
+        'Subnet Math /24: Usable Hosts',
+        subnet24.usableHosts === '254',
+        `Expected 254, got ${subnet24.usableHosts}`
+      );
+      this.assert(
+        'Subnet Math /24: First Usable Host',
+        subnet24.firstHost === '192.168.1.1',
+        `Expected 192.168.1.1, got ${subnet24.firstHost}`
+      );
+      this.assert(
+        'Subnet Math /24: Last Usable Host',
+        subnet24.lastHost === '192.168.1.254',
+        `Expected 192.168.1.254, got ${subnet24.lastHost}`
+      );
+
+      const subnet30 = CneUtils.calculateSubnet('10.0.0.5', 30);
+      this.assert(
+        'Subnet Math /30: Network Address',
+        subnet30.networkAddress === '10.0.0.4',
+        `Expected 10.0.0.4, got ${subnet30.networkAddress}`
+      );
+      this.assert(
+        'Subnet Math /30: Broadcast Address',
+        subnet30.broadcastAddress === '10.0.0.7',
+        `Expected 10.0.0.7, got ${subnet30.broadcastAddress}`
+      );
+      this.assert(
+        'Subnet Math /30: First Usable Host',
+        subnet30.firstHost === '10.0.0.5',
+        `Expected 10.0.0.5, got ${subnet30.firstHost}`
+      );
+      this.assert(
+        'Subnet Math /30: Last Usable Host',
+        subnet30.lastHost === '10.0.0.6',
+        `Expected 10.0.0.6, got ${subnet30.lastHost}`
+      );
+      this.assert(
+        'Subnet Math /30: Subnet Mask',
+        subnet30.subnetMask === '255.255.255.252',
+        `Expected 255.255.255.252, got ${subnet30.subnetMask}`
+      );
+
+      // --- Test 5: Binary Converter ---
+      this.assert(
+        'Binary validation: Correct characters',
+        CneUtils.validateBinary('11000000 10101000') === true
+      );
+      this.assert(
+        'Binary validation: Invalid characters',
+        CneUtils.validateBinary('11000002') === false
+      );
+      this.assert(
+        'Binary to Decimal: basic',
+        CneUtils.binaryToDecimal('11000000') === '192',
+        `Expected 192, got ${CneUtils.binaryToDecimal('11000000')}`
+      );
+      this.assert(
+        'Decimal to Binary: basic',
+        CneUtils.decimalToBinary('192') === '11000000',
+        `Expected 11000000, got ${CneUtils.decimalToBinary('192')}`
+      );
+
+      // --- Test 6: Password Generator ---
+      const passOptions = { uppercase: true, lowercase: true, numbers: true, symbols: true };
+      const testPass = CneUtils.generatePassword(16, passOptions);
+      this.assert(
+        'Password Generator: Length compliance',
+        testPass.length === 16,
+        `Expected length 16, got ${testPass.length}`
+      );
+      
+      const strength = CneUtils.calculatePasswordStrength(testPass, passOptions);
+      this.assert(
+        'Password Strength: Score estimation',
+        strength.entropy >= 80 && strength.label === 'Strong',
+        `Entropy: ${strength.entropy}, Label: ${strength.label}`
+      );
+    }
+  };
+
+  // Run suite
+  suite.init();
+</script>
+
+</body>
+</html>
