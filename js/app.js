@@ -261,22 +261,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-// ﬂÊœ  ‘€Ì· Ê ÕÊÌ· «··€… («·⁄—»Ì… / «·≈‰Ã·Ì“Ì…)
+// ﬂÊœ  ‘€Ì· Ê ÕÊÌ· «··€…
 document.addEventListener('DOMContentLoaded', () => {
     const langBtn = document.getElementById('sidebarLangToggle');
     const langText = document.getElementById('langToggleText');
 
     if (langBtn) {
         langBtn.addEventListener('click', () => {
-            // «· Õﬁﬁ „‰ «·« Ã«Â «·Õ«·Ì ··„Êﬁ⁄ (RTL Ì⁄‰Ì ⁄—»Ì)
             if (document.documentElement.dir === 'rtl') {
                 document.documentElement.dir = 'ltr';
                 document.documentElement.lang = 'en';
-                if (langText) langText.textContent = '«·⁄—»Ì…';
+                if (langText) langText.textContent = 'AR';
             } else {
                 document.documentElement.dir = 'rtl';
                 document.documentElement.lang = 'ar';
-                if (langText) langText.textContent = 'English';
+                if (langText) langText.textContent = 'EN';
             }
         });
     }
