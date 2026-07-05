@@ -216,3 +216,22 @@ window.PasswordGeneratorComponent = {
     triggerGeneration();
   }
 };
+// ... هنا الكود القديم الخاص بك ...
+// (لا تحذفي شيئاً مما سبق)
+
+// أضيفي هذا في آخر الملف:
+const myInput = document.getElementById('passwordOutput');
+if (myInput) {
+    myInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        const chkUpper = document.getElementById('chkUpper');
+        const chkLower = document.getElementById('chkLower');
+        const chkNumbers = document.getElementById('chkNumbers');
+        const chkSymbols = document.getElementById('chkSymbols');
+
+        if (chkUpper) chkUpper.checked = /[A-Z]/.test(val);
+        if (chkLower) chkLower.checked = /[a-z]/.test(val);
+        if (chkNumbers) chkNumbers.checked = /[0-9]/.test(val);
+        if (chkSymbols) chkSymbols.checked = /[^A-Za-z0-9]/.test(val);
+    });
+}
