@@ -73,8 +73,7 @@ window.PasswordGeneratorComponent = {
 
             <div class="password-output-box">
                 <input type="text" id="passwordOutput" style="background: transparent; border: none; color: var(--text-main); font-size: 1rem; width: 100%; outline: none;" placeholder="${t('passOutputPlaceholder')}">
-                <button class="copy-btn" id="btnCopyPass" title="${t('btnCopyTooltip')}">
-                    <i data-lucide="copy" id="copyIcon"></i>
+            <input type="text" id="passwordOutput" placeholder="Type here..." style="background: #ffffff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; width: 100%; color: #000;">
                 </button>
             </div>
         </div>
