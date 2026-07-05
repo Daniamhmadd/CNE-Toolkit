@@ -4,6 +4,7 @@
 
 // الكود الكامل لـ password-generator.js
 window.PasswordGeneratorComponent = {
+
     render() {
         return `
       <div class="tool-view">
@@ -18,230 +19,147 @@ window.PasswordGeneratorComponent = {
         </div>
 
         <div class="tool-workspace">
+
           <!-- Configurations Card -->
           <div class="card">
             <h3 class="card-title" style="margin-bottom: 1.5rem;">${t('passConfigTitle')}</h3>
-            
+
             <div class="form-group">
-              <label for="passLength" class="form-label">${t('passLengthLabel')}</label>
-              <div class="slider-container">
-                <input type="range" id="passLength" class="range-slider" min="6" max="64" value="16">
-                <span class="slider-val" id="lengthVal">16</span>
-              </div>
+              <label class="form-label">${t('passLengthLabel')}</label>
+              <input type="range" id="passLength" min="6" max="64" value="16">
+              <span id="lengthVal">16</span>
             </div>
 
             <div class="form-group">
               <label class="form-label">${t('passIncludeLabel')}</label>
-              <div class="checkbox-grid">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="chkUpper" class="checkbox-input" checked>
-                  <span>${t('passUppercase')}</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="chkLower" class="checkbox-input" checked>
-                  <span>${t('passLowercase')}</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="chkNumbers" class="checkbox-input" checked>
-                  <span>${t('passNumbers')}</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="chkSymbols" class="checkbox-input" checked>
-                  <span>${t('passSymbols')}</span>
-                </label>
-              </div>
+
+              <label><input type="checkbox" id="chkUpper" checked> ${t('passUppercase')}</label>
+              <label><input type="checkbox" id="chkLower" checked> ${t('passLowercase')}</label>
+              <label><input type="checkbox" id="chkNumbers" checked> ${t('passNumbers')}</label>
+              <label><input type="checkbox" id="chkSymbols" checked> ${t('passSymbols')}</label>
             </div>
 
-            <!-- Validation Info -->
-            <div id="passValidation" class="validation-block error" style="display: none; margin-top: 1rem;">
-              <i data-lucide="alert-triangle" class="validation-icon"></i>
-              <span class="validation-message">${t('passValErr')}</span>
+            <div id="passValidation" style="display:none; color:red;">
+              ${t('passValErr')}
             </div>
 
-            <div style="margin-top: 1.5rem;">
-              <button class="btn btn-primary btn-block" id="btnGeneratePass">
-                <i data-lucide="refresh-cw"></i>
-                <span>${t('btnGeneratePass')}</span>
-              </button>
-            </div>
+            <button id="btnGeneratePass" class="btn btn-primary">
+              ${t('btnGeneratePass')}
+            </button>
+
           </div>
 
-          <!-- Output Display Card -->
+          <!-- Output -->
           <div class="card results-card">
-            <div class="results-header">
-              <h3>${t('analysisResultsTitle')}</h3>
-              <span class="badge" id="strengthBadge">-</span>
+
+            <input type="text" id="passwordOutput" readonly />
+
+            <button id="btnCopyPass">Copy</button>
+
+            <div class="badge" id="strengthBadge">-</div>
+            <div id="strengthLabel">-</div>
+            <div class="strength-bar">
+              <div id="strengthIndicator"></div>
             </div>
 
-<div class="password-output-box">
-    <input type="text" id="passwordOutput" class="password-input" 
-           style="background: #ffffff; border: 1px solid #ccc; padding: 10px; width: 100%; border-radius: 5px;">
-    
-    <button class="copy-btn" id="btnCopyPass" title="Copy">
-        <i data-lucide="copy" id="copyIcon"></i>
-    </button>
-</div>
+            <p id="entropyPara">-</p>
 
-            <div class="results-grid">
-              <div class="result-row-vertical" style="padding: 1rem;">
-                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; gap: 0.5rem;">
-                  <span class="result-label">${t('passStrength')}</span>
-                  <span class="strength-label-text" id="strengthLabel">-</span>
-                </div>
-                
-                <div class="strength-meter-bar" style="width: 100%;">
-                  <div class="strength-indicator" id="strengthIndicator" style="width: 0%;"></div>
-                </div>
-                
-                <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.75rem; line-height: 1.4;" id="entropyPara">
-                  -
-                </p>
-              </div>
-            </div>
           </div>
+
         </div>
       </div>
     `;
     },
 
     init() {
+
         const passLength = document.getElementById('passLength');
         const lengthVal = document.getElementById('lengthVal');
+
         const chkUpper = document.getElementById('chkUpper');
         const chkLower = document.getElementById('chkLower');
         const chkNumbers = document.getElementById('chkNumbers');
         const chkSymbols = document.getElementById('chkSymbols');
+
         const passValidation = document.getElementById('passValidation');
         const btnGeneratePass = document.getElementById('btnGeneratePass');
 
         const passwordOutput = document.getElementById('passwordOutput');
         const btnCopyPass = document.getElementById('btnCopyPass');
+
         const strengthBadge = document.getElementById('strengthBadge');
         const strengthLabel = document.getElementById('strengthLabel');
         const strengthIndicator = document.getElementById('strengthIndicator');
         const entropyPara = document.getElementById('entropyPara');
 
-        // Length Slider update
-        passLength.addEventListener('input', (e) => {
+        passLength.addEventListener('input', e => {
             lengthVal.innerText = e.target.value;
         });
 
-        const getOptions = () => {
-            return {
-                uppercase: chkUpper.checked,
-                lowercase: chkLower.checked,
-                numbers: chkNumbers.checked,
-                symbols: chkSymbols.checked
-            };
-        };
+        const getOptions = () => ({
+            uppercase: chkUpper.checked,
+            lowercase: chkLower.checked,
+            numbers: chkNumbers.checked,
+            symbols: chkSymbols.checked
+        });
 
-        const validateOptions = () => {
+        // ✅ FIX: صار global داخل component
+        this.validateOptions = () => {
             const opts = getOptions();
-            const isValid = opts.uppercase || opts.lowercase || opts.numbers || opts.symbols;
+            const valid = opts.uppercase || opts.lowercase || opts.numbers || opts.symbols;
 
-            if (!isValid) {
-                passValidation.style.display = 'flex';
+            if (!valid) {
+                passValidation.style.display = 'block';
                 btnGeneratePass.disabled = true;
-                btnGeneratePass.style.opacity = '0.5';
-                btnGeneratePass.style.cursor = 'not-allowed';
             } else {
                 passValidation.style.display = 'none';
                 btnGeneratePass.disabled = false;
-                btnGeneratePass.style.opacity = '1';
-                btnGeneratePass.style.cursor = 'pointer';
             }
-            return isValid;
+
+            return valid;
         };
 
-        [chkUpper, chkLower, chkNumbers, chkSymbols].forEach(chk => {
-            chk.addEventListener('change', validateOptions);
+        [chkUpper, chkLower, chkNumbers, chkSymbols].forEach(el => {
+            el.addEventListener('change', () => this.validateOptions());
         });
 
         const triggerGeneration = () => {
-            if (!validateOptions()) return;
+            if (!this.validateOptions()) return;
 
-            const length = parseInt(passLength.value, 10);
+            const length = parseInt(passLength.value);
             const options = getOptions();
 
             const password = CneUtils.generatePassword(length, options);
             passwordOutput.value = password;
-            passwordOutput.style.color = 'var(--text-dark)';
-            btnCopyPass.disabled = false;
 
-            // Update Strength Info (which returns keys like 'passStrong')
             const strength = CneUtils.calculatePasswordStrength(password, options);
-            const localizedLabel = t(strength.label); // e.g. "Strong" or "قوي"
 
-            strengthBadge.className = `badge ${strength.class}`;
-            strengthBadge.innerText = localizedLabel;
+            strengthBadge.innerText = t(strength.label);
+            strengthLabel.innerText = t(strength.label);
 
-            strengthLabel.innerText = localizedLabel;
+            entropyPara.innerText = `${t('passEntropyInfo')}: ${strength.entropy}`;
 
-            // Format entropy text
-            entropyPara.innerHTML = t('passEntropyInfo').replace('{entropy}', strength.entropy);
+            let color = 'red';
+            if (strength.label === 'passMedium') color = 'orange';
+            if (strength.label === 'passStrong') color = 'green';
 
-            // Color and bar adjustments
-            let colorClass = 'var(--error)';
-            if (strength.label === 'passMedium') colorClass = 'var(--warning)';
-            if (strength.label === 'passStrong') colorClass = 'var(--success)';
-
-            strengthLabel.style.color = colorClass;
-            strengthIndicator.style.backgroundColor = colorClass;
-
-            // Map entropy percentages (cap at 128 bits for 100% visualization)
-            const pct = Math.min(100, Math.round((strength.entropy / 128) * 100));
-            strengthIndicator.style.width = `${pct}%`;
+            strengthIndicator.style.width = `${Math.min(100, strength.entropy)}%`;
+            strengthIndicator.style.background = color;
         };
 
         btnGeneratePass.addEventListener('click', triggerGeneration);
 
-        // Copy to clipboard with success UI transition
         btnCopyPass.addEventListener('click', () => {
-            const textToCopy = passwordOutput.innerText;
-            if (textToCopy === t('passOutputPlaceholder') || !textToCopy) return;
+            const text = passwordOutput.value; // ✅ FIX
 
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                btnCopyPass.classList.add('copied');
-                btnCopyPass.innerHTML = `<span style="font-size:0.75rem; font-weight:700; color:var(--success); margin-inline-end:0.25rem;">${t('copiedSuccess')}</span><i data-lucide="check" style="width: 1.25rem; height: 1.25rem;"></i>`;
-                lucide.createIcons();
+            if (!text) return;
 
-                setTimeout(() => {
-                    btnCopyPass.classList.remove('copied');
-                    btnCopyPass.innerHTML = '<i data-lucide="copy" style="width: 1.25rem; height: 1.25rem;"></i>';
-                    lucide.createIcons();
-                }, 2000);
-            });
+            navigator.clipboard.writeText(text);
+
+            btnCopyPass.innerText = "Copied!";
+            setTimeout(() => btnCopyPass.innerText = "Copy", 1500);
         });
 
-        // Run first time to populate initially
         triggerGeneration();
     }
 };
-// نضع الكود داخل دالة تضمن عمله بعد تحميل الصفحة بالكامل
-document.addEventListener('DOMContentLoaded', () => {
-    const passwordOutput = document.getElementById('passwordOutput');
-
-    if (passwordOutput) {
-        passwordOutput.addEventListener('input', (e) => {
-            const val = e.target.value;
-
-            // تحديث المربعات بناءً على النص المكتوب
-            const boxes = {
-                'chkUpper': /[A-Z]/,
-                'chkLower': /[a-z]/,
-                'chkNumbers': /[0-9]/,
-                'chkSymbols': /[^A-Za-z0-9]/
-            };
-
-            for (let id in boxes) {
-                const el = document.getElementById(id);
-                if (el) el.checked = boxes[id].test(val);
-            }
-
-            // تحديث المنطق الأصلي للموقع (إذا كان موجوداً)
-            if (typeof validateOptions === 'function') {
-                validateOptions();
-            }
-        });
-    }
-});
