@@ -216,10 +216,28 @@ window.PasswordGeneratorComponent = {
     triggerGeneration();
   }
 };
-window.addEventListener('load', () => {
+// نضع الكود داخل دالة تضمن عمله بعد تحميل الصفحة بالكامل
+document.addEventListener('DOMContentLoaded', () => {
     const passwordOutput = document.getElementById('passwordOutput');
+
     if (passwordOutput) {
-        passwordOutput.addEventListener('input', () => {
+        passwordOutput.addEventListener('input', (e) => {
+            const val = e.target.value;
+
+            // تحديث المربعات بناءً على النص المكتوب
+            const boxes = {
+                'chkUpper': /[A-Z]/,
+                'chkLower': /[a-z]/,
+                'chkNumbers': /[0-9]/,
+                'chkSymbols': /[^A-Za-z0-9]/
+            };
+
+            for (let id in boxes) {
+                const el = document.getElementById(id);
+                if (el) el.checked = boxes[id].test(val);
+            }
+
+            // تحديث المنطق الأصلي للموقع (إذا كان موجوداً)
             if (typeof validateOptions === 'function') {
                 validateOptions();
             }
