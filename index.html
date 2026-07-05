@@ -5,141 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="CNE Toolkit – A responsive collection of networking tools for students, IT professionals, and beginners in Network Engineering.">
     <title>CNE Toolkit – Network Engineering Assistant</title>
-    <!-- Google Fonts: Cairo (Arabic), Inter & Outfit (English) -->
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Stylesheets -->
+
+    <!-- CSS -->
     <link rel="stylesheet" href="./css/style.css">
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- QRCode.js CDN for Wi-Fi QR Code Generation -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <!-- ❌ تم حذف CDN الخارجي لتجنب Tracking Prevention -->
+    <!-- <script src="https://unpkg.com/lucide@latest"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script> -->
+    <!-- ✅ ملفات محلية (لا تتأثر بالمتصفح) -->
+    <script src="./js/libs/lucide.min.js"></script>
+    <script src="./js/libs/qrcode.min.js"></script>
+
 </head>
+
 <body>
 
-    <!-- App Wrapper -->
     <div class="app-container">
 
         <!-- Mobile Header -->
         <header class="mobile-header">
             <div class="brand">
                 <i data-lucide="network" class="brand-icon"></i>
-                <span data-i18n="brandingTitle">CNE Toolkit</span>
+                <span>CNE Toolkit</span>
             </div>
 
-            <!-- Mobile Quick Controls -->
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <button class="settings-btn" id="mobileThemeToggle" title="Toggle Theme" aria-label="Toggle Theme">
-                    <i data-lucide="moon" id="mobileThemeIcon"></i>
-                </button>
-                <button class="settings-btn" id="mobileLangToggle" title="Toggle Language" aria-label="Toggle Language" style="font-weight: 700; font-size: 0.8rem; font-family: var(--font-display);">
-                    AR
-                </button>
-                <button class="menu-toggle" id="menuToggleBtn" aria-label="Toggle Navigation Menu">
-                    <i data-lucide="menu"></i>
-                </button>
+            <div style="display:flex; gap:10px;">
+                <button id="mobileThemeToggle">🌙</button>
+                <button id="mobileLangToggle">AR</button>
+                <button id="menuToggleBtn">☰</button>
             </div>
         </header>
 
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="brand">
-                    <i data-lucide="network" class="brand-icon"></i>
-                    <div>
-                        <h1 class="brand-title" data-i18n="brandingTitle">CNE Toolkit</h1>
-                        <span class="brand-subtitle" data-i18n="brandingSubtitle">Network Assistant</span>
-                    </div>
-                </div>
-            </div>
-
             <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <span class="nav-section-title" data-i18n="navOverview">Overview</span>
-                    <a href="#/" class="nav-link active" data-page="home">
-                        <i data-lucide="layout-dashboard"></i>
-                        <span data-i18n="navDashboard">Dashboard</span>
-                    </a>
-                </div>
 
-                <div class="nav-section">
-                    <span class="nav-section-title" data-i18n="navTools">Networking Tools</span>
-                    <a href="#/ip-analyzer" class="nav-link" data-page="ip-analyzer">
-                        <i data-lucide="binary"></i>
-                        <span data-i18n="navIpAnalyzer">IP Address Analyzer</span>
-                    </a>
-                    <a href="#/subnet-calculator" class="nav-link" data-page="subnet-calculator">
-                        <i data-lucide="calculator"></i>
-                        <span data-i18n="navSubnetCalc">Subnet Calculator</span>
-                    </a>
-                    <a href="#/port-lookup" class="nav-link" data-page="port-lookup">
-                        <i data-lucide="search-code"></i>
-                        <span data-i18n="navPortLookup">Port Lookup</span>
-                    </a>
-                </div>
+                <a href="#/" data-page="home" class="nav-link active">Dashboard</a>
+                <a href="#/ip-analyzer" data-page="ip-analyzer" class="nav-link">IP Analyzer</a>
+                <a href="#/subnet-calculator" data-page="subnet-calculator" class="nav-link">Subnet</a>
+                <a href="#/port-lookup" data-page="port-lookup" class="nav-link">Ports</a>
+                <a href="#/password-generator" data-page="password-generator" class="nav-link">Password</a>
+                <a href="#/binary-converter" data-page="binary-converter" class="nav-link">Binary</a>
+                <a href="#/qr-generator" data-page="qr-generator" class="nav-link">QR Generator</a>
 
-                <div class="nav-section">
-                    <span class="nav-section-title" data-i18n="navSecurity">Security & Utilities</span>
-                    <a href="#/password-generator" class="nav-link" data-page="password-generator">
-                        <i data-lucide="key-round"></i>
-                        <span data-i18n="navPasswordGen">Password Generator</span>
-                    </a>
-                    <a href="#/binary-converter" class="nav-link" data-page="binary-converter">
-                        <i data-lucide="shuffle"></i>
-                        <span data-i18n="navBinaryConv">Binary Converter</span>
-                    </a>
-                    <a href="#/qr-generator" class="nav-link" data-page="qr-generator">
-                        <i data-lucide="qr-code"></i>
-                        <span data-i18n="navQrGen">Wi-Fi QR Generator</span>
-                    </a>
-                </div>
-
-                <div class="nav-section">
-                    <span class="nav-section-title" data-i18n="navResources">Resources</span>
-                    <a href="#/learn" class="nav-link" data-page="learn">
-                        <i data-lucide="book-open"></i>
-                        <span data-i18n="navLearn">Learn Section</span>
-                    </a>
-                    <a href="#/about" class="nav-link" data-page="about">
-                        <i data-lucide="info"></i>
-                        <span data-i18n="navAbout">About Page</span>
-                    </a>
-                </div>
             </nav>
-
-            <!-- Sidebar Settings Footer -->
-            <div class="sidebar-footer">
-                <div class="settings-row">
-                    <!-- Theme selector -->
-                    <button class="settings-btn" id="sidebarThemeToggle" title="Toggle Theme" aria-label="Toggle Theme">
-                        <i data-lucide="moon" id="sidebarThemeIcon"></i>
-                        <span id="themeToggleText">Dark Mode</span>
-
-
-
-                </div>
-                <div class="version-row" style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                    <span class="version" data-i18n="navVersion">Version 1.0.0</span>
-                </div>
-            </div>
         </aside>
 
-        <!-- Mobile Nav Overlay -->
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <!-- Overlay -->
+        <div id="sidebarOverlay"></div>
 
-        <!-- Main Workspace Content -->
+        <!-- Content -->
         <main class="main-content">
-            <div id="page-content" class="fade-in">
-                <!-- Dynamic views will load here -->
-            </div>
+            <div id="page-content"></div>
         </main>
 
     </div>
 
-    <!-- Translation Core and Router Setup -->
+    <!-- Scripts -->
     <script src="./js/translations.js"></script>
     <script src="./js/utils.js"></script>
+
     <script src="./js/components/ip-analyzer.js"></script>
     <script src="./js/components/subnet-calculator.js"></script>
     <script src="./js/components/port-lookup.js"></script>
@@ -148,6 +78,7 @@
     <script src="./js/components/qr-generator.js"></script>
     <script src="./js/components/learn.js"></script>
     <script src="./js/components/about.js"></script>
+
     <script src="./js/app.js"></script>
 
 </body>
