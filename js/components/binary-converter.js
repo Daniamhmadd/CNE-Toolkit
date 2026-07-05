@@ -16,52 +16,35 @@ window.BinaryConverterComponent = {
           </div>
         </div>
 
-        <!-- Converter Layout -->
-        <div class="card" style="padding: 2rem;">
-          <div class="converter-container">
-            
-            <!-- Binary Form Field -->
-            <div style="flex: 1; width: 100%;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <label for="binInput" class="form-label" style="margin-bottom: 0;">${t('binaryInputLabel')}</label>
-                <span class="badge badge-primary">${t('navBinaryConv')}</span>
-              </div>
-              <textarea id="binInput" class="form-input code-style" rows="4" placeholder="e.g. 11000000 10101000" style="resize: none; font-size: 1.1rem; line-height: 1.5;"></textarea>
-              
-              <!-- Binary Validation -->
-              <div id="binValidation" class="validation-block error" style="display: none; padding: 0.5rem 0.75rem; margin-top: 0.75rem;">
-                <i data-lucide="x-circle" class="validation-icon" style="width: 1rem; height: 1rem;"></i>
-                <span class="validation-message" style="font-size: 0.75rem;">${t('binaryValErr')}</span>
-              </div>
+      <div class="card" style="padding: 2rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+                
+                <div class="form-group">
+                    <label class="form-label" style="font-weight: 600;">Decimal (Base 10)</label>
+                    <input type="text" id="decInput" class="form-input code-style" placeholder="e.g. 192" style="width: 100%; padding: 0.75rem; font-family: monospace;">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" style="font-weight: 600;">Binary (Base 2)</label>
+                    <input type="text" id="binInput" class="form-input code-style" placeholder="e.g. 11000000" style="width: 100%; padding: 0.75rem; font-family: monospace;">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" style="font-weight: 600;">Hexadecimal (Base 16)</label>
+                    <input type="text" id="hexInput" class="form-input code-style" placeholder="e.g. C0" style="width: 100%; padding: 0.75rem; font-family: monospace; text-transform: uppercase;">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" style="font-weight: 600;">Octal (Base 8)</label>
+                    <input type="text" id="octInput" class="form-input code-style" placeholder="e.g. 300" style="width: 100%; padding: 0.75rem; font-family: monospace;">
+                </div>
+
             </div>
 
-            <!-- Swap/Direction visual indicator -->
-            <div class="swap-icon">
-              <i data-lucide="arrow-left-right"></i>
-            </div>
-
-            <!-- Decimal Form Field -->
-            <div style="flex: 1; width: 100%;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <label for="decInput" class="form-label" style="margin-bottom: 0;">${t('decimalInputLabel')}</label>
-                <span class="badge badge-success">${t('ipDecimal')}</span>
-              </div>
-              <textarea id="decInput" class="form-input code-style" rows="4" placeholder="e.g. 192" style="resize: none; font-size: 1.1rem; line-height: 1.5;"></textarea>
-              
-              <!-- Decimal Validation -->
-              <div id="decValidation" class="validation-block error" style="display: none; padding: 0.5rem 0.75rem; margin-top: 0.75rem;">
-                <i data-lucide="x-circle" class="validation-icon" style="width: 1rem; height: 1rem;"></i>
-                <span class="validation-message" style="font-size: 0.75rem;">${t('decimalValErr')}</span>
-              </div>
-            </div>
-
-          </div>
-
-          <div style="margin-top: 2rem; border-top: 1px solid var(--border-light); padding-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
-            <button class="btn btn-secondary" id="btnClearConverter">
-              <i data-lucide="trash-2"></i>
-              <span>${t('clearInputsBtn')}</span>
+            <button id="btnClearAll" class="btn btn-secondary" style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="trash-2"></i> Clear Inputs
             </button>
+        </div>
             <p style="font-size: 0.8rem; color: var(--text-light); text-align: start; max-width: 400px; margin: 0;">
               ${t('binaryConvTip')}
             </p>
@@ -71,87 +54,53 @@ window.BinaryConverterComponent = {
     `;
   },
 
-  init() {
-    const binInput = document.getElementById('binInput');
-    const decInput = document.getElementById('decInput');
-    const binValidation = document.getElementById('binValidation');
-    const decValidation = document.getElementById('decValidation');
-    const btnClearConverter = document.getElementById('btnClearConverter');
+    init() {
+        const decInput = document.getElementById('decInput');
+        const binInput = document.getElementById('binInput');
+        const hexInput = document.getElementById('hexInput');
+        const octInput = document.getElementById('octInput');
+        const btnClearAll = document.getElementById('btnClearAll');
 
-    let activeSource = null;
+        // ÏÇáÉ áÊÍÏíË ÈÇÞí ÇáÍÞæá ÈäÇÁð Úáì ÇáÞíãÉ ÇáãÏÎáÉ æÇáäÙÇã ÇáÎÇÕ ÈåÇ
+        const updateAllFields = (value, fromBase) => {
+            if (!value.trim()) {
+                if (decInput) decInput.value = '';
+                if (binInput) binInput.value = '';
+                if (hexInput) hexInput.value = '';
+                if (octInput) octInput.value = '';
+                return;
+            }
 
-    // Format binary string with spaces every 8 bits for readability
-    const formatBinaryOutput = (binStr) => {
-      const matches = binStr.match(/.{1,8}/g);
-      return matches ? matches.join(' ') : binStr;
-    };
+            try {
+                // ÊÍæíá ÇáãÏÎá Åáì ÑÞã ÚÔÑí ÃæáÇð ÈäÇÁð Úáì äÙÇã ÇáÅÏÎÇá
+                const parsedInt = parseInt(value, fromBase);
 
-    const handleBinaryChange = () => {
-      if (activeSource === 'decimal') return;
-      activeSource = 'binary';
-      
-      const value = binInput.value;
-      const cleaned = value.replace(/\s+/g, '');
-      
-      if (!cleaned) {
-        binValidation.style.display = 'none';
-        decInput.value = '';
-        activeSource = null;
-        return;
-      }
+                if (isNaN(parsedInt)) return;
 
-      if (CneUtils.validateBinary(cleaned)) {
-        binValidation.style.display = 'none';
-        const resultDec = CneUtils.binaryToDecimal(cleaned);
-        decInput.value = resultDec;
-        decValidation.style.display = 'none';
-      } else {
-        binValidation.style.display = 'flex';
-        decInput.value = t('invalidFormat');
-      }
-      activeSource = null;
-    };
+                // ÊÍÏíË ßá ÍÞá ÅÐÇ áã íßä åæ ÇáÍÞá ÇáäÔØ ÇáÐí íßÊÈ Ýíå ÇáãÓÊÎÏã ÍÇáíÇð
+                if (fromBase !== 10 && decInput) decInput.value = parsedInt.toString(10);
+                if (fromBase !== 2 && binInput) binInput.value = parsedInt.toString(2);
+                if (fromBase !== 16 && hexInput) hexInput.value = parsedInt.toString(16).toUpperCase();
+                if (fromBase !== 8 && octInput) octInput.value = parsedInt.toString(8);
+            } catch (e) {
+                console.error("Conversion error", e);
+            }
+        };
 
-    const handleDecimalChange = () => {
-      if (activeSource === 'binary') return;
-      activeSource = 'decimal';
-      
-      const value = decInput.value;
-      const cleaned = value.trim();
-      
-      if (!cleaned) {
-        decValidation.style.display = 'none';
-        binInput.value = '';
-        activeSource = null;
-        return;
-      }
+        // ÑÈØ ÇáÃÍÏÇË ááÍÞæá ÇáÃÑÈÚÉ áÊÚãá ÚäÏ ÇáßÊÇÈÉ ÇáÝæÑíÉ
+        if (decInput) decInput.addEventListener('input', (e) => updateAllFields(e.target.value, 10));
+        if (binInput) binInput.addEventListener('input', (e) => updateAllFields(e.target.value, 2));
+        if (hexInput) hexInput.addEventListener('input', (e) => updateAllFields(e.target.value, 16));
+        if (octInput) octInput.addEventListener('input', (e) => updateAllFields(e.target.value, 8));
 
-      if (CneUtils.validateDecimal(cleaned)) {
-        decValidation.style.display = 'none';
-        const resultBin = CneUtils.decimalToBinary(cleaned);
-        binInput.value = formatBinaryOutput(resultBin);
-        binValidation.style.display = 'none';
-      } else {
-        decValidation.style.display = 'flex';
-        binInput.value = t('invalidFormat');
-      }
-      activeSource = null;
-    };
-
-    // Keystroke listeners
-    binInput.addEventListener('input', handleBinaryChange);
-    decInput.addEventListener('input', handleDecimalChange);
-
-    // Clear handler
-    btnClearConverter.addEventListener('click', () => {
-      binInput.value = '';
-      decInput.value = '';
-      binValidation.style.display = 'none';
-      decValidation.style.display = 'none';
-    });
-
-    // Populate initial default example (e.g. 192)
-    decInput.value = '192';
-    handleDecimalChange();
-  }
+        // ÒÑ ãÓÍ ßÇÝÉ ÇáÍÞæá
+        if (btnClearAll) {
+            btnClearAll.addEventListener('click', () => {
+                if (decInput) decInput.value = '';
+                if (binInput) binInput.value = '';
+                if (hexInput) hexInput.value = '';
+                if (octInput) octInput.value = '';
+            });
+        }
+    }
 };

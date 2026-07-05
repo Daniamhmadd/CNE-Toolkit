@@ -65,19 +65,19 @@ window.PasswordGeneratorComponent = {
             </div>
           </div>
 
-          <!-- Output Display Card -->
-          <div class="card results-card">
+         <div class="card results-card">
             <div class="results-header">
-              <h3>${t('analysisResultsTitle')}</h3>
-              <span class="badge" id="strengthBadge">-</span>
+                <h3>${t('analysisResultsTitle')}</h3>
+                <span class="badge" id="strengthBadge">-</span>
             </div>
 
             <div class="password-output-box">
-              <span id="passwordOutput" style="user-select: all;">${t('passOutputPlaceholder')}</span>
-              <button class="copy-btn" id="btnCopyPass" title="${t('btnCopyTooltip')}" disabled>
-                <i data-lucide="copy" id="copyIcon"></i>
-              </button>
+                <input type="text" id="passwordOutput" style="background: transparent; border: none; color: var(--text-main); font-size: 1rem; width: 100%; outline: none;" placeholder="${t('passOutputPlaceholder')}">
+                <button class="copy-btn" id="btnCopyPass" title="${t('btnCopyTooltip')}">
+                    <i data-lucide="copy" id="copyIcon"></i>
+                </button>
             </div>
+        </div>
 
             <div class="results-grid">
               <div class="result-row-vertical" style="padding: 1rem;">
@@ -123,6 +123,36 @@ window.PasswordGeneratorComponent = {
       lengthVal.innerText = e.target.value;
     });
 
+      // فحص قوة كلمة المرور أثناء كتابتها
+      if (passwordOutput) {
+          passwordOutput.addEventListener('input', () => {
+              const password = passwordOutput.value;
+              let score = 0;
+
+              if (password.length >= 6) score += 20;
+              if (password.length >= 10) score += 20;
+              if (/[A-Z]/.test(password)) score += 20;
+              if (/[a-z]/.test(password)) score += 20;
+              if (/[0-9]/.test(password)) score += 10;
+              if (/[^A-Za-z0-9]/.test(password)) score += 10;
+
+              // تحديث شريط القوة والنصوص
+              if (strengthIndicator) {
+                  strengthIndicator.style.width = score + '%';
+
+                  if (score < 40) {
+                      strengthIndicator.style.backgroundColor = '#ef4444'; // أحمر
+                      if (strengthLabel) strengthLabel.innerText = 'Weak';
+                  } else if (score < 80) {
+                      strengthIndicator.style.backgroundColor = '#f59e0b'; // برتقالي
+                      if (strengthLabel) strengthLabel.innerText = 'Medium';
+                  } else {
+                      strengthIndicator.style.backgroundColor = '#10b981'; // أخضر
+                      if (strengthLabel) strengthLabel.innerText = 'Strong';
+                  }
+              }
+          });
+      }
     const getOptions = () => {
       return {
         uppercase: chkUpper.checked,
