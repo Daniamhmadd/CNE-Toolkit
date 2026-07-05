@@ -26,11 +26,7 @@ window.PasswordGeneratorComponent = {
 
             <h3>${t('passConfigTitle')}</h3>
 
-            <label>${t('passLengthLabel')}</label>
-            <input type="range" id="passLength" min="6" max="64" value="16">
-            <span id="lengthVal">16</span>
-
-            <br><br>
+            <!-- ❌ تم حذف السلايدر بالكامل -->
 
             <label><input type="checkbox" id="chkUpper" checked> ${t('passUppercase')}</label><br>
             <label><input type="checkbox" id="chkLower" checked> ${t('passLowercase')}</label><br>
@@ -72,9 +68,6 @@ window.PasswordGeneratorComponent = {
 
     init() {
 
-        const passLength = document.getElementById('passLength');
-        const lengthVal = document.getElementById('lengthVal');
-
         const chkUpper = document.getElementById('chkUpper');
         const chkLower = document.getElementById('chkLower');
         const chkNumbers = document.getElementById('chkNumbers');
@@ -91,10 +84,8 @@ window.PasswordGeneratorComponent = {
         const strengthIndicator = document.getElementById('strengthIndicator');
         const entropyPara = document.getElementById('entropyPara');
 
-        // slider
-        passLength.addEventListener('input', (e) => {
-            lengthVal.innerText = e.target.value;
-        });
+        // ❌ طول ثابت للباسورد
+        const FIXED_LENGTH = 16;
 
         const getOptions = () => ({
             uppercase: chkUpper.checked,
@@ -103,7 +94,6 @@ window.PasswordGeneratorComponent = {
             symbols: chkSymbols.checked
         });
 
-        // ✅ VALIDATION (fixed scope)
         this.validateOptions = () => {
             const o = getOptions();
             const valid = o.uppercase || o.lowercase || o.numbers || o.symbols;
@@ -135,10 +125,11 @@ window.PasswordGeneratorComponent = {
 
             if (!this.validateOptions()) return;
 
-            const length = parseInt(passLength.value, 10);
             const options = getOptions();
 
-            const password = CneUtils.generatePassword(length, options);
+            // ✅ طول ثابت 16 بدل السلايدر
+            const password = CneUtils.generatePassword(FIXED_LENGTH, options);
+
             passwordOutput.value = password;
 
             const strength = CneUtils.calculatePasswordStrength(password, options);
@@ -146,14 +137,12 @@ window.PasswordGeneratorComponent = {
             updateStrengthUI(strength);
         };
 
-        // events
         btnGeneratePass.addEventListener('click', triggerGeneration);
 
         [chkUpper, chkLower, chkNumbers, chkSymbols].forEach(el => {
             el.addEventListener('change', () => this.validateOptions());
         });
 
-        // 🔥 LIVE typing feature (رجعناه صح)
         passwordOutput.addEventListener('input', () => {
 
             const val = passwordOutput.value;
@@ -184,7 +173,6 @@ window.PasswordGeneratorComponent = {
             setTimeout(() => btnCopyPass.innerText = "Copy", 1500);
         });
 
-        // init
         triggerGeneration();
     }
 };
