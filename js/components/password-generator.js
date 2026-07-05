@@ -216,28 +216,21 @@ window.PasswordGeneratorComponent = {
     triggerGeneration();
   }
 };
+// هذا الكود يربط حقل النص بالمنطق الأصلي للموقع
 const passwordOutput = document.getElementById('passwordOutput');
 
 if (passwordOutput) {
     passwordOutput.addEventListener('input', (e) => {
+        // عندما تكتبين، نحدث المربعات أولاً
         const val = e.target.value;
-
-        // 1. تحديث المربعات (لأن هذا جزء من شكل الواجهة)
         if (document.getElementById('chkUpper')) document.getElementById('chkUpper').checked = /[A-Z]/.test(val);
         if (document.getElementById('chkLower')) document.getElementById('chkLower').checked = /[a-z]/.test(val);
         if (document.getElementById('chkNumbers')) document.getElementById('chkNumbers').checked = /[0-9]/.test(val);
         if (document.getElementById('chkSymbols')) document.getElementById('chkSymbols').checked = /[^A-Za-z0-9]/.test(val);
 
-        // 2. تحديث مؤشر القوة مباشرة
-        // سنقوم بتحديث `strengthIndicator` و `strengthLabel` يدوياً
-        const strengthIndicator = document.getElementById('strengthIndicator');
-        const strengthLabel = document.getElementById('strengthLabel');
-
-        if (strengthIndicator) {
-            // هذه معادلة بسيطة تعطي شكلاً تقريبياً لقوة الباسورد
-            const strength = Math.min(100, val.length * 6);
-            strengthIndicator.style.width = strength + '%';
-            if (strengthLabel) strengthLabel.innerText = strength > 50 ? 'قوي' : 'ضعيف';
+        // هنا "السر": نستدعي الدالة الأصلية للموقع لتحديث كل شيء
+        if (typeof validateOptions === 'function') {
+            validateOptions();
         }
     });
 }
