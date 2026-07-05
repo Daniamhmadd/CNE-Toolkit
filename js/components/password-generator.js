@@ -65,18 +65,19 @@ window.PasswordGeneratorComponent = {
             </div>
           </div>
 
-         <div class="card results-card">
+          <!-- Output Display Card -->
+          <div class="card results-card">
             <div class="results-header">
-                <h3>${t('analysisResultsTitle')}</h3>
-                <span class="badge" id="strengthBadge">-</span>
+              <h3>${t('analysisResultsTitle')}</h3>
+              <span class="badge" id="strengthBadge">-</span>
             </div>
 
-            <div class="password-output-box">
-                <input type="text" id="passwordOutput" style="background: transparent; border: none; color: var(--text-main); font-size: 1rem; width: 100%; outline: none;" placeholder="${t('passOutputPlaceholder')}">
-            <input type="text" id="passwordOutput" placeholder="Type here..." style="background: #ffffff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; width: 100%; color: #000;">
-                </button>
+        <input type="text" id="passwordOutput" placeholder="Type here..." style="background: #ffffff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; width: 100%; color: #000;">
+             
+              <button class="copy-btn" id="btnCopyPass" title="${t('btnCopyTooltip')}" disabled>
+                <i data-lucide="copy" id="copyIcon"></i>
+              </button>
             </div>
-        </div>
 
             <div class="results-grid">
               <div class="result-row-vertical" style="padding: 1rem;">
@@ -122,49 +123,6 @@ window.PasswordGeneratorComponent = {
       lengthVal.innerText = e.target.value;
     });
 
-      // 1. تحديد العناصر
-      const passwordInput = document.getElementById('passwordOutput');
-      const chkUpper = document.getElementById('chkUpper');
-      const chkLower = document.getElementById('chkLower');
-      const chkNumbers = document.getElementById('chkNumbers');
-      const chkSymbols = document.getElementById('chkSymbols');
-      const strengthIndicator = document.getElementById('strengthIndicator');
-      const strengthLabel = document.getElementById('strengthLabel');
-
-      // 2. التحقق اللحظي عند الكتابة
-      if (passwordInput) {
-          passwordInput.addEventListener('input', () => {
-              const pwd = passwordInput.value;
-
-              // تحديث مربعات الاختيار (التدقيق التفاعلي)
-              if (chkUpper) chkUpper.checked = /[A-Z]/.test(pwd);
-              if (chkLower) chkLower.checked = /[a-z]/.test(pwd);
-              if (chkNumbers) chkNumbers.checked = /[0-9]/.test(pwd);
-              if (chkSymbols) chkSymbols.checked = /[^A-Za-z0-9]/.test(pwd);
-
-              // 3. حساب قوة الباسورد
-              let score = 0;
-              if (pwd.length >= 6) score += 20;
-              if (pwd.length >= 10) score += 20;
-              if (/[A-Z]/.test(pwd)) score += 20;
-              if (/[a-z]/.test(pwd)) score += 20;
-              if (/[0-9]/.test(pwd)) score += 10;
-              if (/[^A-Za-z0-9]/.test(pwd)) score += 10;
-
-              // تحديث شريط القوة بصرياً
-              if (strengthIndicator) strengthIndicator.style.width = score + '%';
-              if (score < 40) {
-                  if (strengthIndicator) strengthIndicator.style.backgroundColor = '#ef4444';
-                  if (strengthLabel) strengthLabel.innerText = 'Weak';
-              } else if (score < 80) {
-                  if (strengthIndicator) strengthIndicator.style.backgroundColor = '#f59e0b';
-                  if (strengthLabel) strengthLabel.innerText = 'Medium';
-              } else {
-                  if (strengthIndicator) strengthIndicator.style.backgroundColor = '#10b981';
-                  if (strengthLabel) strengthLabel.innerText = 'Strong';
-              }
-          });
-      }
     const getOptions = () => {
       return {
         uppercase: chkUpper.checked,
