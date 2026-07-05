@@ -19,37 +19,42 @@ const CneApp = {
     renderHome() {
         return `
       <section class="hero-section">
-        <h2 class="hero-title">CNE Toolkit</h2>
-        <p class="hero-subtitle">All-in-One Networking Assistant</p>
+        <h2>CNE Toolkit</h2>
+        <p>Network Engineering Toolkit</p>
       </section>
-
-      <div id="tools-grid">
-        <h3>Available Utilities</h3>
-      </div>
     `;
     },
 
     route() {
+        const contentArea = document.getElementById('page-content');
+        if (!contentArea) return;
+
+        let hash = window.location.hash || '#/';
+        let path = hash.replace('#', '');
+
+        const component = this.routes[path] || 'home';
+
         try {
-            let hash = window.location.hash || '#/';
-            let path = hash.substring(1);
-
-            const component = this.routes[path] || 'home';
-            const contentArea = document.getElementById('page-content');
-
-            if (!contentArea) return;
 
             contentArea.classList.remove('fade-in');
             void contentArea.offsetWidth;
             contentArea.classList.add('fade-in');
 
             if (component === 'home') {
+
                 contentArea.innerHTML = this.renderHome();
                 this.updateSidebarActiveState('home');
+
             } else {
-                if (!component || !component.render) {
-                    console.error('Component missing:', path);
-                    contentArea.innerHTML = "<h2>Error loading page</h2>";
+
+                if (!component) {
+                    contentArea.innerHTML = "<h2>Route not found</h2>";
+                    return;
+                }
+
+                if (typeof component.render !== "function") {
+                    console.error("Component missing render():", path);
+                    contentArea.innerHTML = "<h2>Error loading component</h2>";
                     return;
                 }
 
@@ -62,74 +67,64 @@ const CneApp = {
                 this.updateSidebarActiveState(path.replace('/', ''));
             }
 
-            if (window.lucide && lucide.createIcons) {
+            if (window.lucide) {
                 lucide.createIcons();
             }
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0 });
 
         } catch (err) {
-            console.error('Routing error:', err);
+            console.error("App routing error:", err);
+            contentArea.innerHTML = "<h2>Something went wrong</h2>";
         }
     },
 
     updateSidebarActiveState(pageKey) {
-        const navLinks = document.querySelectorAll('.nav-link');
-
-        navLinks.forEach(link => {
-            const target = link.getAttribute('data-page');
-
-            if (target === pageKey) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.toggle(
+                'active',
+                link.getAttribute('data-page') === pageKey
+            );
         });
     },
 
     initMobileMenu() {
-        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const btn = document.getElementById('menuToggleBtn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
 
-        if (!menuToggleBtn || !sidebar || !overlay) return;
+        if (!btn || !sidebar || !overlay) return;
 
-        const openClose = () => {
+        btn.addEventListener('click', () => {
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
-        };
+        });
 
-        const close = () => {
+        overlay.addEventListener('click', () => {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
-        };
-
-        menuToggleBtn.addEventListener('click', openClose);
-        overlay.addEventListener('click', close);
-
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 1024) close();
-            });
         });
     },
 
     init() {
         this.initMobileMenu();
-
         window.addEventListener('hashchange', () => this.route());
-
         this.route();
     }
 };
 
-// Init
+
+// INIT SAFE
 document.addEventListener('DOMContentLoaded', () => {
-    CneApp.init();
+    try {
+        CneApp.init();
+    } catch (e) {
+        console.error("Init failed:", e);
+    }
 });
 
 
-// DARK MODE (safe version)
+// DARK MODE SAFE
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('sidebarThemeToggle');
     const text = document.getElementById('themeToggleText');
@@ -140,15 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.toggle('dark-theme');
 
         if (text) {
-            text.textContent = document.body.classList.contains('dark-theme')
-                ? 'Light Mode'
-                : 'Dark Mode';
+            text.textContent =
+                document.body.classList.contains('dark-theme')
+                    ? 'Light Mode'
+                    : 'Dark Mode';
         }
     });
 });
 
 
-// LANGUAGE TOGGLE (safe version)
+// LANGUAGE SAFE
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('sidebarLangToggle');
     const text = document.getElementById('langToggleText');
