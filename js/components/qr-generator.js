@@ -26,7 +26,7 @@ window.QrGeneratorComponent = {
 
           <button id="btnGenerateQr">Generate</button>
 
-          <div id="qrBox" style="margin-top:20px;"></div>
+          <div id="qrBox" style="margin-top:20px; display:flex; justify-content:center;"></div>
 
           <button id="btnDownloadQr" disabled>Download</button>
 
@@ -47,38 +47,57 @@ window.QrGeneratorComponent = {
 
         let lastCanvas = null;
 
-        function generate() {
+        const generate = () => {
 
-            if (typeof QRCode === "undefined") {
-                alert("QR library not loaded");
-                return;
+            try {
+
+                if (!window.QRCode) {
+                    console.error("QRCode library missing");
+                    return;
+                }
+
+                qrBox.innerHTML = "";
+
+                const ssidVal = ssid.value.trim();
+                const passVal = pass.value.trim();
+                const secVal = sec.value;
+
+                if (!ssidVal) return;
+
+                const qrText =
+                    secVal === "nopass"
+                        ? `WIFI:S:${ssidVal};T:nopass;;`
+                        : `WIFI:S:${ssidVal};T:${secVal};P:${passVal};;`;
+
+                // create QR
+                new QRCode(qrBox, {
+                    text: qrText,
+                    width: 220,
+                    height: 220,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+
+                // capture canvas safely
+                setTimeout(() => {
+                    lastCanvas = qrBox.querySelector("canvas");
+                    btnDownload.disabled = !lastCanvas;
+                }, 50);
+
+            } catch (err) {
+                console.error("QR generation error:", err);
             }
-
-            qrBox.innerHTML = "";
-
-            const text = `WIFI:S:${ssid.value};T:${sec.value};P:${pass.value};;`;
-
-            new QRCode(qrBox, {
-                text,
-                width: 220,
-                height: 220
-            });
-
-            setTimeout(() => {
-                lastCanvas = qrBox.querySelector("canvas");
-                btnDownload.disabled = !lastCanvas;
-            }, 300);
-        }
+        };
 
         btnGen.addEventListener("click", generate);
 
         btnDownload.addEventListener("click", () => {
+
             if (!lastCanvas) return;
 
-            const a = document.createElement("a");
-            a.download = "wifi-qr.png";
-            a.href = lastCanvas.toDataURL("image/png");
-            a.click();
+            const link = document.createElement("a");
+            link.download = `wifi-qr-${ssid.value || "code"}.png`;
+            link.href = lastCanvas.toDataURL("image/png");
+            link.click();
         });
 
         generate();

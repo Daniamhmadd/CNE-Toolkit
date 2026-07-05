@@ -21,12 +21,9 @@ window.PasswordGeneratorComponent = {
 
         <div class="tool-workspace">
 
-          <!-- SETTINGS -->
           <div class="card">
 
             <h3>${t('passConfigTitle')}</h3>
-
-            <!-- ❌ تم حذف السلايدر بالكامل -->
 
             <label><input type="checkbox" id="chkUpper" checked> ${t('passUppercase')}</label><br>
             <label><input type="checkbox" id="chkLower" checked> ${t('passLowercase')}</label><br>
@@ -37,13 +34,10 @@ window.PasswordGeneratorComponent = {
               ${t('passValErr')}
             </div>
 
-            <button id="btnGeneratePass">
-              ${t('btnGeneratePass')}
-            </button>
+            <button id="btnGeneratePass">${t('btnGeneratePass')}</button>
 
           </div>
 
-          <!-- OUTPUT -->
           <div class="card">
 
             <input type="text" id="passwordOutput" placeholder="Password">
@@ -68,83 +62,103 @@ window.PasswordGeneratorComponent = {
 
     init() {
 
-        const chkUpper = document.getElementById('chkUpper');
-        const chkLower = document.getElementById('chkLower');
-        const chkNumbers = document.getElementById('chkNumbers');
-        const chkSymbols = document.getElementById('chkSymbols');
+        const get = (id) => document.getElementById(id);
 
-        const passValidation = document.getElementById('passValidation');
-        const btnGeneratePass = document.getElementById('btnGeneratePass');
+        const chkUpper = get('chkUpper');
+        const chkLower = get('chkLower');
+        const chkNumbers = get('chkNumbers');
+        const chkSymbols = get('chkSymbols');
 
-        const passwordOutput = document.getElementById('passwordOutput');
-        const btnCopyPass = document.getElementById('btnCopyPass');
+        const passValidation = get('passValidation');
+        const btnGeneratePass = get('btnGeneratePass');
 
-        const strengthBadge = document.getElementById('strengthBadge');
-        const strengthLabel = document.getElementById('strengthLabel');
-        const strengthIndicator = document.getElementById('strengthIndicator');
-        const entropyPara = document.getElementById('entropyPara');
+        const passwordOutput = get('passwordOutput');
+        const btnCopyPass = get('btnCopyPass');
 
-        // ❌ طول ثابت للباسورد
+        const strengthBadge = get('strengthBadge');
+        const strengthLabel = get('strengthLabel');
+        const strengthIndicator = get('strengthIndicator');
+        const entropyPara = get('entropyPara');
+
         const FIXED_LENGTH = 16;
 
         const getOptions = () => ({
-            uppercase: chkUpper.checked,
-            lowercase: chkLower.checked,
-            numbers: chkNumbers.checked,
-            symbols: chkSymbols.checked
+            uppercase: chkUpper?.checked,
+            lowercase: chkLower?.checked,
+            numbers: chkNumbers?.checked,
+            symbols: chkSymbols?.checked
         });
 
-        this.validateOptions = () => {
+        const validateOptions = () => {
             const o = getOptions();
             const valid = o.uppercase || o.lowercase || o.numbers || o.symbols;
 
-            passValidation.style.display = valid ? 'none' : 'block';
-            btnGeneratePass.disabled = !valid;
+            if (passValidation) {
+                passValidation.style.display = valid ? 'none' : 'block';
+            }
+
+            if (btnGeneratePass) {
+                btnGeneratePass.disabled = !valid;
+            }
 
             return valid;
         };
 
-        const updateStrengthUI = (strength) => {
+        const updateUI = (strength) => {
 
-            strengthBadge.innerText = t(strength.label);
-            strengthLabel.innerText = t(strength.label);
-
-            entropyPara.innerText = `Entropy: ${strength.entropy}`;
+            if (strengthBadge) strengthBadge.innerText = t(strength.label);
+            if (strengthLabel) strengthLabel.innerText = t(strength.label);
+            if (entropyPara) entropyPara.innerText = `Entropy: ${strength.entropy}`;
 
             let color = 'red';
             if (strength.label === 'passMedium') color = 'orange';
             if (strength.label === 'passStrong') color = 'green';
 
-            strengthIndicator.style.width =
-                `${Math.min(100, (strength.entropy / 128) * 100)}%`;
-
-            strengthIndicator.style.background = color;
+            if (strengthIndicator) {
+                strengthIndicator.style.width =
+                    `${Math.min(100, (strength.entropy / 128) * 100)}%`;
+                strengthIndicator.style.background = color;
+            }
         };
 
-        const triggerGeneration = () => {
+        const generatePassword = () => {
 
-            if (!this.validateOptions()) return;
+            if (!validateOptions()) return;
 
             const options = getOptions();
-
-            // ✅ طول ثابت 16 بدل السلايدر
             const password = CneUtils.generatePassword(FIXED_LENGTH, options);
 
             passwordOutput.value = password;
 
             const strength = CneUtils.calculatePasswordStrength(password, options);
-
-            updateStrengthUI(strength);
+            updateUI(strength);
         };
 
-        btnGeneratePass.addEventListener('click', triggerGeneration);
+        const copyPassword = async () => {
+            const text = passwordOutput.value;
+            if (!text) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                btnCopyPass.innerText = "Copied!";
+                setTimeout(() => btnCopyPass.innerText = "Copy", 1200);
+            } catch (e) {
+                // fallback
+                passwordOutput.select();
+                document.execCommand("copy");
+                btnCopyPass.innerText = "Copied!";
+                setTimeout(() => btnCopyPass.innerText = "Copy", 1200);
+            }
+        };
 
         [chkUpper, chkLower, chkNumbers, chkSymbols].forEach(el => {
-            el.addEventListener('change', () => this.validateOptions());
+            el?.addEventListener('change', validateOptions);
         });
 
-        passwordOutput.addEventListener('input', () => {
+        btnGeneratePass?.addEventListener('click', generatePassword);
+        btnCopyPass?.addEventListener('click', copyPassword);
 
+        passwordOutput?.addEventListener('input', () => {
             const val = passwordOutput.value;
 
             const boxes = {
@@ -155,24 +169,14 @@ window.PasswordGeneratorComponent = {
             };
 
             for (let id in boxes) {
-                const el = document.getElementById(id);
+                const el = get(id);
                 if (el) el.checked = boxes[id].test(val);
             }
 
             const strength = CneUtils.calculatePasswordStrength(val, getOptions());
-            updateStrengthUI(strength);
+            updateUI(strength);
         });
 
-        btnCopyPass.addEventListener('click', () => {
-            const text = passwordOutput.value;
-            if (!text) return;
-
-            navigator.clipboard.writeText(text);
-
-            btnCopyPass.innerText = "Copied!";
-            setTimeout(() => btnCopyPass.innerText = "Copy", 1500);
-        });
-
-        triggerGeneration();
+        generatePassword();
     }
 };

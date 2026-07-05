@@ -18,41 +18,57 @@ const CneApp = {
 
     renderHome() {
         return `
-      <section class="hero-section">
-        <h2>CNE Toolkit</h2>
-        <p>Network Engineering Toolkit</p>
-      </section>
-    `;
+            <section class="hero-section">
+                <h2>CNE Toolkit</h2>
+                <p>Network Engineering Toolkit</p>
+            </section>
+        `;
     },
 
     route() {
         const contentArea = document.getElementById('page-content');
         if (!contentArea) return;
 
-        let path = (window.location.hash || '#/').replace('#', '');
+        const path = (window.location.hash || '#/').replace('#', '');
 
         const component = this.routes[path] || 'home';
 
         try {
+
+            // reset animation safely
             contentArea.classList.remove('fade-in');
             void contentArea.offsetWidth;
             contentArea.classList.add('fade-in');
 
+            // HOME
             if (component === 'home') {
                 contentArea.innerHTML = this.renderHome();
                 this.updateSidebarActiveState('home');
-            } else {
-                contentArea.innerHTML = component.render();
+            }
+
+            // COMPONENTS
+            else if (typeof component === 'object') {
+                contentArea.innerHTML = component.render?.() || '';
                 component.init?.();
+
+                // important fix: normalize key
                 this.updateSidebarActiveState(path.replace('/', ''));
             }
 
-            if (window.lucide) lucide.createIcons();
+            // fallback (broken route)
+            else {
+                contentArea.innerHTML = `<h2>Page Not Found</h2>`;
+            }
 
-            window.scrollTo({ top: 0 });
+            // icons safety
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'instant' });
 
         } catch (e) {
-            console.error(e);
+            console.error("Route Error:", e);
             contentArea.innerHTML = `<h2>Page Error</h2>`;
         }
     },
@@ -73,24 +89,35 @@ const CneApp = {
 
         if (!btn || !sidebar || !overlay) return;
 
-        btn.onclick = () => {
+        btn.addEventListener('click', () => {
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
-        };
+        });
 
-        overlay.onclick = () => {
+        overlay.addEventListener('click', () => {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
-        };
+        });
     },
 
     init() {
         this.initMobileMenu();
+
         window.addEventListener('hashchange', () => this.route());
-        this.route();
+
+        // important fix: prevent double-init bugs
+        if (!this._initialized) {
+            this._initialized = true;
+            this.route();
+        }
     }
 };
 
+// SAFE INIT (important)
 document.addEventListener('DOMContentLoaded', () => {
-    CneApp.init();
+    try {
+        CneApp.init();
+    } catch (e) {
+        console.error("Init failed:", e);
+    }
 });
