@@ -1294,3 +1294,23 @@ html[dir="rtl"] .learn-card-action:hover i {
     font-size: 1.35rem;
   }
 }
+/* √·Ê«‰ «·Ê÷⁄ «·œ«ﬂ‰ */
+body.dark-theme {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+    /*  ⁄œÌ· Œ·›Ì… «·ﬁ«∆„… «·Ã«‰»Ì… Ê«·ﬂ—Ê  · ‰«”» «·Ê÷⁄ «·œ«ﬂ‰ */
+    body.dark-theme .sidebar,
+    body.dark-theme .card,
+    body.dark-theme main {
+        background-color: #2d2d2d !important;
+        color: #ffffff !important;
+    }
+
+        /*  ⁄œÌ· ‰’Ê’ «·ﬁ«∆„… «·Ã«‰»Ì… */
+        body.dark-theme .sidebar a,
+        body.dark-theme .sidebar span,
+        body.dark-theme .sidebar h3 {
+            color: #e0e0e0 !important;
+        }

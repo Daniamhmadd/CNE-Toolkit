@@ -242,3 +242,42 @@ const CneApp = {
 document.addEventListener('DOMContentLoaded', () => {
   CneApp.init();
 });
+// ﬂÊœ  ‘€Ì· Ê »œÌ· «·Ê÷⁄ «·œ«ﬂ‰ (Dark Mode)
+document.addEventListener('DOMContentLoaded', () => {
+    const themeBtn = document.getElementById('sidebarThemeToggle');
+    const themeText = document.getElementById('themeToggleText');
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            // ≈÷«›… √Ê ≈“«·… ﬂ·«” «·œ«—ﬂ „Êœ „‰ «·Ã”„ «·—∆Ì”Ì ··„Êﬁ⁄
+            document.body.classList.toggle('dark-theme');
+
+            //  €ÌÌ— «·‰’ œ«Œ· «·“— Õ”» «·Ê÷⁄ «·Õ«·Ì
+            if (document.body.classList.contains('dark-theme')) {
+                if (themeText) themeText.textContent = 'Light Mode';
+            } else {
+                if (themeText) themeText.textContent = 'Dark Mode';
+            }
+        });
+    }
+});
+// ﬂÊœ  ‘€Ì· Ê ÕÊÌ· «··€… («·⁄—»Ì… / «·≈‰Ã·Ì“Ì…)
+document.addEventListener('DOMContentLoaded', () => {
+    const langBtn = document.getElementById('sidebarLangToggle');
+    const langText = document.getElementById('langToggleText');
+
+    if (langBtn) {
+        langBtn.addEventListener('click', () => {
+            // «· Õﬁﬁ „‰ «·« Ã«Â «·Õ«·Ì ··„Êﬁ⁄ (RTL Ì⁄‰Ì ⁄—»Ì)
+            if (document.documentElement.dir === 'rtl') {
+                document.documentElement.dir = 'ltr';
+                document.documentElement.lang = 'en';
+                if (langText) langText.textContent = '«·⁄—»Ì…';
+            } else {
+                document.documentElement.dir = 'rtl';
+                document.documentElement.lang = 'ar';
+                if (langText) langText.textContent = 'English';
+            }
+        });
+    }
+});
