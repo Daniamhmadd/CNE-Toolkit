@@ -139,3 +139,15 @@ window.PasswordGeneratorComponent = {
         triggerGeneration();
     }
 };
+// كود إضافي بسيط جداً لجعل مربع النص تفاعلياً
+document.addEventListener('DOMContentLoaded', () => {
+    const passwordOutput = document.getElementById('passwordOutput');
+    if (passwordOutput) {
+        passwordOutput.addEventListener('input', () => {
+            // هذا السطر يخبر الموقع أن يعيد فحص القوة فقط عند الكتابة
+            if (typeof validateOptions === 'function') {
+                validateOptions();
+            }
+        });
+    }
+});
