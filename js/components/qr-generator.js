@@ -9,52 +9,26 @@ window.QrGeneratorComponent = {
       <div class="tool-view">
 
         <div class="tool-header">
-          <div class="tool-header-icon">
-            <i data-lucide="qr-code"></i>
-          </div>
-          <div class="tool-header-text">
-            <h2>${t('qrTitle')}</h2>
-            <p>${t('qrDesc')}</p>
-          </div>
+          <i data-lucide="qr-code"></i>
+          <h2>${t('qrTitle')}</h2>
         </div>
 
         <div class="tool-workspace">
 
-          <div class="card">
-            <h3>${t('qrNetworkDetailsTitle')}</h3>
+          <input id="wifiSsid" placeholder="SSID" value="MyNetwork">
+          <input id="wifiPassword" placeholder="Password" value="12345678">
 
-            <input type="text" id="wifiSsid" placeholder="SSID" value="MyNetwork">
+          <select id="wifiSecurity">
+            <option value="WPA">WPA</option>
+            <option value="WEP">WEP</option>
+            <option value="nopass">Open</option>
+          </select>
 
-            <select id="wifiSecurity">
-              <option value="WPA">WPA/WPA2</option>
-              <option value="WEP">WEP</option>
-              <option value="nopass">Open</option>
-            </select>
+          <button id="btnGenerateQr">Generate</button>
 
-            <input type="password" id="wifiPassword" value="12345678">
+          <div id="qrBox" style="margin-top:20px;"></div>
 
-            <label>
-              <input type="checkbox" id="wifiHidden"> Hidden Network
-            </label>
-
-            <button id="btnGenerateQr">
-              Generate QR
-            </button>
-
-          </div>
-
-          <div class="card">
-
-            <div id="qrContainer"></div>
-
-            <h4 id="displaySsid">-</h4>
-            <p id="displaySecurity">-</p>
-
-            <button id="btnDownloadQr" disabled>
-              Download
-            </button>
-
-          </div>
+          <button id="btnDownloadQr" disabled>Download</button>
 
         </div>
       </div>
@@ -63,61 +37,50 @@ window.QrGeneratorComponent = {
 
     init() {
 
-        const wifiSsid = document.getElementById('wifiSsid');
-        const wifiSecurity = document.getElementById('wifiSecurity');
-        const wifiPassword = document.getElementById('wifiPassword');
-        const wifiHidden = document.getElementById('wifiHidden');
+        const ssid = document.getElementById("wifiSsid");
+        const pass = document.getElementById("wifiPassword");
+        const sec = document.getElementById("wifiSecurity");
 
-        const btnGenerateQr = document.getElementById('btnGenerateQr');
-        const btnDownloadQr = document.getElementById('btnDownloadQr');
+        const btnGen = document.getElementById("btnGenerateQr");
+        const btnDownload = document.getElementById("btnDownloadQr");
+        const qrBox = document.getElementById("qrBox");
 
-        const qrContainer = document.getElementById('qrContainer');
-        const displaySsid = document.getElementById('displaySsid');
-        const displaySecurity = document.getElementById('displaySecurity');
+        let lastCanvas = null;
 
-        let qrInstance = null;
+        function generate() {
 
-        const generateQrCode = () => {
+            if (typeof QRCode === "undefined") {
+                alert("QR library not loaded");
+                return;
+            }
 
-            const ssid = wifiSsid.value.trim();
-            const security = wifiSecurity.value;
-            const password = wifiPassword.value;
-            const hidden = wifiHidden.checked;
+            qrBox.innerHTML = "";
 
-            if (!ssid) return;
+            const text = `WIFI:S:${ssid.value};T:${sec.value};P:${pass.value};;`;
 
-            // تنظيف القديم
-            qrContainer.innerHTML = "";
-
-            let qrText = `WIFI:S:${ssid};T:${security};P:${password};H:${hidden ? "true" : "false"};;`;
-
-            // 🔥 المكتبة الجديدة
-            qrInstance = new QRCode(qrContainer, {
-                text: qrText,
+            new QRCode(qrBox, {
+                text,
                 width: 220,
                 height: 220
             });
 
-            displaySsid.innerText = ssid;
-            displaySecurity.innerText = security;
+            setTimeout(() => {
+                lastCanvas = qrBox.querySelector("canvas");
+                btnDownload.disabled = !lastCanvas;
+            }, 300);
+        }
 
-            btnDownloadQr.disabled = false;
-        };
+        btnGen.addEventListener("click", generate);
 
-        btnGenerateQr.addEventListener('click', generateQrCode);
+        btnDownload.addEventListener("click", () => {
+            if (!lastCanvas) return;
 
-        btnDownloadQr.addEventListener('click', () => {
-
-            const canvas = qrContainer.querySelector('canvas');
-
-            if (!canvas) return;
-
-            const link = document.createElement('a');
-            link.download = "wifi-qr.png";
-            link.href = canvas.toDataURL("image/png");
-            link.click();
+            const a = document.createElement("a");
+            a.download = "wifi-qr.png";
+            a.href = lastCanvas.toDataURL("image/png");
+            a.click();
         });
 
-        generateQrCode();
+        generate();
     }
 };
