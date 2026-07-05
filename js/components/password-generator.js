@@ -157,7 +157,6 @@ window.PasswordGeneratorComponent = {
     });
 
       const triggerGeneration = () => {
-      passwordOutput.addEventListener('input', validateOptions);
       if (!validateOptions()) return;
 
       const length = parseInt(passLength.value, 10);
@@ -217,3 +216,13 @@ window.PasswordGeneratorComponent = {
     triggerGeneration();
   }
 };
+window.addEventListener('load', () => {
+    const passwordOutput = document.getElementById('passwordOutput');
+    if (passwordOutput) {
+        passwordOutput.addEventListener('input', () => {
+            if (typeof validateOptions === 'function') {
+                validateOptions();
+            }
+        });
+    }
+});
